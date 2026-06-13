@@ -1,0 +1,302 @@
+[
+  {
+    "id": "f1",
+    "kategorie": "soft",
+    "text": "Was ist dein unnötigstes Talent?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f2",
+    "kategorie": "soft",
+    "text": "Welche App auf deinem Handy würdest du als Letztes löschen?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f3",
+    "kategorie": "soft",
+    "text": "Was war dein erster Gedanke heute Morgen?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f4",
+    "kategorie": "soft",
+    "text": "Welches Gericht könntest du jeden Tag essen?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f5",
+    "kategorie": "soft",
+    "text": "Was wolltest du als Kind unbedingt werden?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f6",
+    "kategorie": "soft",
+    "text": "Welche Serie hast du zuletzt komplett durchgesuchtet?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f7",
+    "kategorie": "soft",
+    "text": "Was steht ganz oben auf deiner Reise-Wunschliste?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f8",
+    "kategorie": "soft",
+    "text": "Welchen Song hörst du heimlich viel zu oft?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f9",
+    "kategorie": "soft",
+    "text": "Was ist das Beste, was du dir dieses Jahr gekauft hast?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f10",
+    "kategorie": "soft",
+    "text": "Wofür gibst du zu viel Geld aus?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f11",
+    "kategorie": "soft",
+    "text": "Was kannst du überraschend gut kochen?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f12",
+    "kategorie": "soft",
+    "text": "Welcher Geruch macht dich sofort glücklich?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f13",
+    "kategorie": "soft",
+    "text": "Was war dein schönster Urlaubsmoment aller Zeiten?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f14",
+    "kategorie": "soft",
+    "text": "Welches Hobby würdest du anfangen, wenn Zeit keine Rolle spielen würde?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f15",
+    "kategorie": "soft",
+    "text": "Was ist dein Lieblingswort?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f16",
+    "kategorie": "soft",
+    "text": "Mit welcher berühmten Person würdest du gerne einen Kaffee trinken?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f17",
+    "kategorie": "soft",
+    "text": "Was machst du, wenn du eine Stunde komplett für dich hast?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f18",
+    "kategorie": "fun",
+    "text": "Was wäre dein letztes Wort vor der Hinrichtung?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f19",
+    "kategorie": "fun",
+    "text": "Womit würdest du eine Zombie-Apokalypse überleben?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f20",
+    "kategorie": "fun",
+    "text": "Was wäre dein Gefängnis-Spitzname?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f21",
+    "kategorie": "fun",
+    "text": "Welche Superkraft hättest du gerne — aber nur in nutzloser Mini-Version?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f22",
+    "kategorie": "fun",
+    "text": "Was würdest du tun, wenn du für einen Tag unsichtbar wärst?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f23",
+    "kategorie": "fun",
+    "text": "Welchen Titel hätte der Film über dein Leben?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f24",
+    "kategorie": "fun",
+    "text": "Was würde deine KI-Assistentin hinter deinem Rücken über dich sagen?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f25",
+    "kategorie": "fun",
+    "text": "Welches Tier wärst du in einem früheren Leben gewesen?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f26",
+    "kategorie": "fun",
+    "text": "Was wäre dein Spezialgericht in der Hölle-Küche?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f27",
+    "kategorie": "fun",
+    "text": "Womit würdest du sofort viral gehen, wenn du müsstest?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f28",
+    "kategorie": "fun",
+    "text": "Was würdest du als Erstes tun, wenn du Bundeskanzler/in wärst?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f29",
+    "kategorie": "fun",
+    "text": "Welchen völlig unnötigen Weltrekord würdest du aufstellen?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f30",
+    "kategorie": "fun",
+    "text": "Was wäre der Name deiner Band — und welches Instrument spielst du?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f31",
+    "kategorie": "fun",
+    "text": "Wofür würdest du nachts um 3 Uhr aufstehen, ohne zu meckern?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f32",
+    "kategorie": "fun",
+    "text": "Was würde ein Alien über die Menschheit denken, wenn es nur dein Handy findet?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f33",
+    "kategorie": "fun",
+    "text": "Welcher Gegenstand in deiner Wohnung hat die beste Geschichte?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f34",
+    "kategorie": "fun",
+    "text": "Was wäre dein Kampfschrei beim Betreten eines Meetings?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f35",
+    "kategorie": "fun",
+    "text": "Welchen historischen Moment hättest du gerne live gesehen?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f36",
+    "kategorie": "fun",
+    "text": "Was würdest du mit einer Million machen — innerhalb von 24 Stunden?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f37",
+    "kategorie": "frech",
+    "text": "Was war deine peinlichste Autokorrektur-Panne?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f38",
+    "kategorie": "frech",
+    "text": "Welche Ausrede hast du am häufigsten benutzt, um eine Party früher zu verlassen?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f39",
+    "kategorie": "frech",
+    "text": "Was googelst du, was du niemals laut zugeben würdest?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f40",
+    "kategorie": "frech",
+    "text": "Welche Nachricht hast du mal an die falsche Person geschickt?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f41",
+    "kategorie": "frech",
+    "text": "Was ist das Kindischste, das du regelmäßig tust?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f42",
+    "kategorie": "frech",
+    "text": "Welche unpopuläre Meinung vertrittst du mit voller Überzeugung?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f43",
+    "kategorie": "frech",
+    "text": "Was war dein schlimmster Fashion-Fehler?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f44",
+    "kategorie": "frech",
+    "text": "Wen aus dieser Runde würdest du anrufen, wenn du eine Leiche verstecken müsstest — und warum?",
+    "nurAbRunde3": true
+  },
+  {
+    "id": "f45",
+    "kategorie": "frech",
+    "text": "Was war die absurdeste Lüge, mit der du durchgekommen bist?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f46",
+    "kategorie": "frech",
+    "text": "Welchen Trend hast du mitgemacht und bereust es heute?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f47",
+    "kategorie": "frech",
+    "text": "Was würdest du nie wieder bei einem ersten Date machen?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f48",
+    "kategorie": "frech",
+    "text": "Welche Angewohnheit von dir würde deine Mitbewohner/Partner in den Wahnsinn treiben?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f49",
+    "kategorie": "frech",
+    "text": "Was ist das Verrückteste, was du je für Geld oder eine Wette getan hast?",
+    "nurAbRunde3": false
+  },
+  {
+    "id": "f50",
+    "kategorie": "frech",
+    "text": "Welche Nachricht in deinem Handy-Verlauf wäre am schwersten zu erklären?",
+    "nurAbRunde3": false
+  }
+]

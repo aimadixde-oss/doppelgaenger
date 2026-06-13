@@ -1,0 +1,10 @@
+{
+  "name": "Doppelgänger",
+  "short_name": "Doppelgänger",
+  "description": "KI-Party-Spiel — eine Antwort ist die KI. Wer entlarvt sie?",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a17",
+  "theme_color": "#1a1a17",
+  "icons": []
+}

@@ -1,0 +1,28 @@
+# ====== Secrets / API-Keys ======
+# Niemals API-Keys committen
+.env
+.env.*
+*.key
+secrets.json
+**/apikey*
+**/api-key*
+
+# ====== Node.js ======
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.npm/
+
+# ====== Phase-0-Testdaten (optional, enthält Antworten von Personen) ======
+# Auskommentieren, falls die Testdaten NICHT ins Repo sollen:
+# phase0-validierung/daten.js
+# phase0-validierung/ergebnisse.csv
+
+# ====== Betriebssystem / Editor ======
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/

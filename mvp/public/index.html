@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#1a1a17" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <title>Doppelgänger</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <main id="app">
+
+    <!-- HOME -->
+    <section id="screen-home" class="screen active">
+      <h1 class="logo">Doppelgänger</h1>
+      <p class="tag">Eine Antwort ist die KI. Wer entlarvt sie?</p>
+
+      <div class="card">
+        <label>Dein Name</label>
+        <input id="name" maxlength="24" placeholder="z. B. Mario" autocomplete="off" />
+      </div>
+
+      <div class="card">
+        <button id="btn-create" class="primary big">Neuen Raum erstellen</button>
+      </div>
+
+      <div class="card">
+        <label>Raumcode</label>
+        <input id="code" maxlength="4" placeholder="ABCD" autocomplete="off" class="codeinput" />
+        <button id="btn-join" class="big">Beitreten</button>
+      </div>
+      <p id="home-error" class="error"></p>
+    </section>
+
+    <!-- LOBBY -->
+    <section id="screen-lobby" class="screen">
+      <p class="muted">Raumcode</p>
+      <div id="lobby-code" class="bigcode">––––</div>
+      <div id="qr" class="qr"></div>
+      <p id="qr-hint" class="muted small">Mitspieler scannen den Code oder geben ihn ein.</p>
+      <h3>Spieler</h3>
+      <ul id="player-list" class="players"></ul>
+      <button id="btn-start" class="primary big" hidden>Spiel starten</button>
+      <p id="lobby-note" class="muted small"></p>
+    </section>
+
+    <!-- ANSWER -->
+    <section id="screen-answer" class="screen">
+      <div class="rowtop"><span id="ans-round" class="pill"></span><span id="ans-timer" class="timer"></span></div>
+      <p id="ans-cat" class="muted small"></p>
+      <h2 id="ans-question" class="question"></h2>
+      <textarea id="answer" maxlength="280" rows="3" placeholder="Deine Antwort…"></textarea>
+      <button id="btn-answer" class="primary big">Absenden</button>
+      <div id="ans-wait" class="wait" hidden>
+        <p>Antwort abgegeben ✓</p>
+        <p id="ans-progress" class="muted small"></p>
+      </div>
+    </section>
+
+    <!-- VOTING -->
+    <section id="screen-voting" class="screen">
+      <div class="rowtop"><span class="pill">Abstimmung</span><span id="vote-timer" class="timer"></span></div>
+      <h2 id="vote-question" class="question"></h2>
+      <p class="muted small">Welche Antwort stammt von der KI?</p>
+      <div id="options" class="options"></div>
+      <div id="vote-wait" class="wait" hidden>
+        <p>Stimme abgegeben ✓</p>
+        <p id="vote-progress" class="muted small"></p>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="screen-results" class="screen">
+      <h2 class="question">Auflösung</h2>
+      <p id="res-note" class="muted small"></p>
+      <div id="reveal" class="reveal"></div>
+      <h3>Punktestand</h3>
+      <ul id="scoreboard" class="players"></ul>
+      <button id="btn-next" class="primary big" hidden>Nächste Runde</button>
+      <p id="res-wait" class="muted small" hidden>Warten auf den Host…</p>
+    </section>
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
