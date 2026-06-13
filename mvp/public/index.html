@@ -41,6 +41,10 @@
       <p id="qr-hint" class="muted small">Mitspieler scannen den Code oder geben ihn ein.</p>
       <h3>Spieler</h3>
       <ul id="player-list" class="players"></ul>
+      <div id="host-settings" class="card" hidden>
+        <label for="rounds">Anzahl Runden</label>
+        <input id="rounds" type="number" min="1" max="20" value="8" inputmode="numeric" />
+      </div>
       <button id="btn-start" class="primary big" hidden>Spiel starten</button>
       <p id="lobby-note" class="muted small"></p>
     </section>
@@ -72,10 +76,11 @@
 
     <!-- RESULTS -->
     <section id="screen-results" class="screen">
-      <h2 class="question">Auflösung</h2>
+      <div id="winner" class="winner" hidden></div>
+      <h2 id="res-title" class="question">Auflösung</h2>
       <p id="res-note" class="muted small"></p>
       <div id="reveal" class="reveal"></div>
-      <h3>Punktestand</h3>
+      <h3 id="score-title">Punktestand</h3>
       <ul id="scoreboard" class="players"></ul>
       <button id="btn-next" class="primary big" hidden>Nächste Runde</button>
       <p id="res-wait" class="muted small" hidden>Warten auf den Host…</p>

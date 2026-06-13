@@ -1,6 +1,6 @@
 # Doppelgänger — Status
 
-Stand: 12. Juni 2026 · Phase 0 abgeschlossen (GO) · **Phase 1 (MVP) in Arbeit — lokal lauffähig, vor VPS-Deployment**
+Stand: 13. Juni 2026 · Phase 0 abgeschlossen (GO) · **Phase 1 (MVP) LIVE auf dem VPS — https://play.aimadixde.de**
 
 ## Wo wir stehen
 Konzept & Roadmap stehen (`doppelgaenger-konzept.md`). **Phase 0 ist bestanden:** Die
@@ -10,9 +10,12 @@ schärfsten Prüfer — den Entwickler selbst, der alle Personas kennt — wurde
 wären ~3–4 Treffer reines Raten). Die beiden Treffer betrafen verschiedene Personen →
 **kein systematischer Tell**. Damit ist die Imitations-Engine validiert.
 
-**Phase 1 läuft:** Ein spielbarer MVP (WebSocket-Server + PWA) steht im Ordner `mvp/`
-und ist lokal End-to-End getestet (3 Spieler, Kalibrierung, KI ab Runde 3, Abstimmung,
-Punkte). Als Nächstes: Deployment auf den VPS und Playtest mit echten Gruppen.
+**Phase 1 ist live:** Der MVP (WebSocket-Server + PWA) läuft öffentlich unter
+**https://play.aimadixde.de** (VPS, Docker-Container hinter nginx + Let's Encrypt).
+Erfolgreich auf 3 echten Geräten getestet (1 MacBook als Host + 2 iPhones per QR):
+Lobby, WebSocket über `wss://`, Runden, KI ab Runde 3 (echte Haiku-Antworten), Abstimmung
+und Punkte funktionieren end-to-end. Nächster Meilenstein: Playtest mit Gruppen, die sich
+gegenseitig kennen (soziale Dynamik), dann PWA-Feinschliff.
 
 ## Phase 0 — Checkliste (abgeschlossen ✅)
 - [x] 50 Startfragen gesammelt (`start-fragenpool.md`)
@@ -57,7 +60,8 @@ Ziel: eine komplette Partie mit 3–8 Handys im selben Raum.
 - [x] Bugfix: eigene Antwort ist beim Voting gesperrt (Zähler blieb sonst hängen)
 - [x] Stilproben-Deckel auf 10 (`DG_MAX_PROBEN`) — Kosten + Qualität
 - [x] Deployment-Dateien: `Dockerfile`, nginx-Block, `deploy/update.sh`, `deploy/rollback.sh`
-- [ ] **VPS-Deployment** (GitHub-Push → Clone → `update.sh` → nginx → certbot)
+- [x] **VPS-Deployment live**: GitHub-Push → Clone → `update.sh` → nginx → certbot → https://play.aimadixde.de
+- [x] Live-Test auf 3 echten Geräten (MacBook + 2 iPhones) erfolgreich
 - [ ] **Playtest** mit echten Gruppen (Freunde, die sich gegenseitig kennen)
 - [ ] Offen: Service-Worker/Icons (echte Offline-PWA), Reconnect, Sieger-Screen, Share
 

@@ -82,11 +82,13 @@ function flashError(msg) {
 
 // ---- HOME ----
 $("#btn-create").onclick = () => {
-  const name = $("#name").value.trim() || "Host";
+  const name = $("#name").value.trim();
+  if (!name) return flashError("Bitte gib zuerst deinen Namen ein.");
   connect(() => send("create", { name }));
 };
 $("#btn-join").onclick = () => {
-  const name = $("#name").value.trim() || "Spieler";
+  const name = $("#name").value.trim();
+  if (!name) return flashError("Bitte gib zuerst deinen Namen ein.");
   const code = $("#code").value.trim().toUpperCase();
   if (code.length !== 4) return flashError("Bitte 4-stelligen Code eingeben.");
   connect(() => send("join", { name, code }));
@@ -125,18 +127,22 @@ function renderLobby(lobby) {
   G.isHost = !!me?.isHost;
   const startBtn = $("#btn-start");
   const genug = lobby.spieler.filter((p) => p.connected).length >= lobby.minSpieler;
+  $("#host-settings").hidden = !G.isHost;
   startBtn.hidden = !G.isHost;
   startBtn.disabled = !genug;
   $("#lobby-note").textContent = G.isHost
     ? (genug ? "" : `Mindestens ${lobby.minSpieler} Spieler nötig.`)
     : "Der Host startet das Spiel.";
 }
-$("#btn-start").onclick = () => send("start");
+$("#btn-start").onclick = () => {
+  const r = parseInt($("#rounds").value, 10);
+  send("start", { rundenAnzahl: Number.isFinite(r) ? r : 8 });
+};
 
 // ---- ANSWER ----
 function renderRound(m) {
   showScreen("answer");
-  $("#ans-round").textContent = `Runde ${m.runde}` + (m.kalibrierung ? " · Aufwärmen" : "");
+  $("#ans-round").textContent = `Runde ${m.runde}/${m.gesamt}` + (m.kalibrierung ? " · Aufwärmen" : "");
   $("#ans-cat").textContent = "Kategorie: " + m.kategorie;
   $("#ans-question").textContent = m.frage;
   const ta = $("#answer");
@@ -189,6 +195,26 @@ function renderVoting(m) {
 function renderResults(m) {
   showScreen("results");
   stopCountdown();
+  G.finale = !!m.finale;
+
+  // Endstand-/Sieger-Banner bei der letzten Runde
+  const winnerEl = $("#winner");
+  if (m.finale) {
+    const sorted = [...m.lobby.spieler].sort((a, b) => b.score - a.score);
+    const top = sorted.length ? sorted[0].score : 0;
+    const sieger = sorted.filter((p) => p.score === top).map((p) => p.name);
+    winnerEl.hidden = false;
+    winnerEl.innerHTML =
+      `🏆 ${sieger.map(escapeHtml).join(" & ")} ${sieger.length > 1 ? "gewinnen" : "gewinnt"}` +
+      `<br><span class="muted small">mit ${top} Punkten</span>`;
+    $("#res-title").textContent = "Endstand";
+    $("#score-title").textContent = `Endstand nach ${m.gesamt} Runden`;
+  } else {
+    winnerEl.hidden = true;
+    $("#res-title").textContent = "Auflösung";
+    $("#score-title").textContent = "Punktestand";
+  }
+
   if (m.uebersprungen) {
     $("#res-note").textContent = m.hinweis || "Runde übersprungen.";
     $("#reveal").innerHTML = "";
@@ -220,9 +246,13 @@ function renderResults(m) {
   });
   const nextBtn = $("#btn-next");
   nextBtn.hidden = !G.isHost;
+  nextBtn.textContent = m.finale ? "Neues Spiel" : "Nächste Runde";
   $("#res-wait").hidden = G.isHost;
+  $("#res-wait").textContent = m.finale
+    ? "Warten auf den Host (neues Spiel)…"
+    : "Warten auf den Host…";
 }
-$("#btn-next").onclick = () => send("next");
+$("#btn-next").onclick = () => send(G.finale ? "reset" : "next");
 
 // ---- Util ----
 function escapeHtml(s) {

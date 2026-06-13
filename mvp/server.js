@@ -49,6 +49,7 @@ function neuerRaum(code) {
     hostId: null,
     phase: "lobby", // lobby | answering | voting | results
     runde: 0,
+    rundenAnzahl: 8, // vom Host in der Lobby festgelegt
     spieler: new Map(), // id -> { id, name, ws, score, connected }
     frage: null,
     genutzteFragen: new Set(),
@@ -77,6 +78,7 @@ function lobbyStand(raum) {
     code: raum.code,
     phase: raum.phase,
     runde: raum.runde,
+    rundenAnzahl: raum.rundenAnzahl,
     spieler: [...raum.spieler.values()].map((p) => ({
       id: p.id,
       name: p.name,
@@ -128,6 +130,7 @@ function rundeStarten(raum) {
   const deadline = Date.now() + ANTWORT_SEK * 1000;
   broadcast(raum, "round", {
     runde: raum.runde,
+    gesamt: raum.rundenAnzahl,
     frage: raum.frage.text,
     kategorie: raum.frage.kategorie,
     kalibrierung,
@@ -287,9 +290,13 @@ function aufloesen(raum) {
     stimmen: [...raum.votes.values()].filter((v) => v === o.optId).length,
   }));
 
+  const finale = raum.runde >= raum.rundenAnzahl;
+  if (finale) raum.phase = "finished";
   broadcast(raum, "results", {
     uebersprungen: false,
     runde: raum.runde,
+    gesamt: raum.rundenAnzahl,
+    finale,
     frage: raum.frage.text,
     reveal,
     opfer: raum.opferId ? nameVon(raum.opferId) : null,
@@ -317,7 +324,8 @@ async function behandle(state, msg) {
       } while (raeume.has(code));
       const raum = neuerRaum(code);
       raeume.set(code, raum);
-      const name = (msg.name || "Host").slice(0, 24);
+      const name = (msg.name || "").toString().trim().slice(0, 24);
+      if (!name) return sende(ws, "error", { message: "Bitte einen Namen angeben." });
       const p = { id: id(), name, ws, score: 0, connected: true };
       raum.hostId = p.id;
       raum.spieler.set(p.id, p);
@@ -332,7 +340,8 @@ async function behandle(state, msg) {
       if (!raum) return sende(ws, "error", { message: "Raum nicht gefunden." });
       if (raum.phase !== "lobby")
         return sende(ws, "error", { message: "Spiel läuft bereits." });
-      const name = (msg.name || "Spieler").slice(0, 24) || "Spieler";
+      const name = (msg.name || "").toString().trim().slice(0, 24);
+      if (!name) return sende(ws, "error", { message: "Bitte einen Namen angeben." });
       const p = { id: id(), name, ws, score: 0, connected: true };
       raum.spieler.set(p.id, p);
       state.raum = raum;
@@ -353,6 +362,9 @@ async function behandle(state, msg) {
         return sende(ws, "error", {
           message: `Mindestens ${MIN_SPIELER} Spieler nötig.`,
         });
+      // Rundenzahl vom Host übernehmen (1–20, Default 8)
+      const n = parseInt(msg.rundenAnzahl, 10);
+      raum.rundenAnzahl = Number.isFinite(n) ? Math.min(20, Math.max(1, n)) : 8;
       rundeStarten(raum);
       break;
     }
@@ -387,8 +399,26 @@ async function behandle(state, msg) {
     case "next": {
       const { raum, player } = state;
       if (!istHost(raum, player)) return;
-      if (raum.phase !== "results") return;
+      if (raum.phase !== "results") return; // bei "finished" nicht weiter
       rundeStarten(raum);
+      break;
+    }
+    case "reset": {
+      const { raum, player } = state;
+      if (!istHost(raum, player)) return;
+      if (raum.phase !== "results" && raum.phase !== "finished") return;
+      clearTimer(raum);
+      raum.phase = "lobby";
+      raum.runde = 0;
+      raum.frage = null;
+      raum.genutzteFragen = new Set();
+      raum.antworten = new Map();
+      raum.stilproben = new Map();
+      raum.optionen = [];
+      raum.votes = new Map();
+      raum.opferId = null;
+      for (const p of raum.spieler.values()) p.score = 0;
+      broadcastLobby(raum);
       break;
     }
     default:

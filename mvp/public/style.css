@@ -79,3 +79,5 @@ button:disabled { opacity: .5; cursor: default; }
 .reveal .who .votes { color: var(--muted); }
 .delta-pos { color: var(--ok); font-weight: 800; }
 .delta-neg { color: var(--bad); font-weight: 800; }
+
+.winner { text-align: center; background: var(--card); border: 1px solid var(--accent2); border-radius: 14px; padding: 18px; margin-bottom: 16px; font-size: 22px; font-weight: 800; }
