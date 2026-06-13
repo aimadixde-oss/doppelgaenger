@@ -50,6 +50,8 @@ function neuerRaum(code) {
     phase: "lobby", // lobby | answering | voting | results
     runde: 0,
     rundenAnzahl: 8, // vom Host in der Lobby festgelegt
+    kategorien: ["soft", "fun", "frech"], // aktive Kategorien (Host)
+    fragenPlan: [], // beim Start zusammengestellte Frage-Sequenz
     spieler: new Map(), // id -> { id, name, ws, score, connected }
     frage: null,
     genutzteFragen: new Set(),
@@ -101,25 +103,65 @@ function clearTimer(raum) {
 }
 
 // ---------- Runden-Logik ----------
-function frageWaehlen(raum) {
-  const kalibrierung = raum.runde <= KALIBRIER_RUNDEN;
-  let pool = FRAGEN.filter((f) => !raum.genutzteFragen.has(f.id));
-  // f44 & Co. erst ab Runde 3
-  pool = pool.filter((f) => !f.nurAbRunde3 || raum.runde > KALIBRIER_RUNDEN);
-  // In Kalibrier-Runden bevorzugt Soft-Fragen (gute Stilproben)
-  if (kalibrierung) {
-    const soft = pool.filter((f) => f.kategorie === "soft");
-    if (soft.length) pool = soft;
+const GEWICHT = { soft: 3, fun: 5, frech: 3 }; // Konzept-Mix soft:fun:frech
+
+// Stellt zu Spielbeginn die ganze Frage-Sequenz nach Quote 3:5:3 zusammen.
+// Berücksichtigt: aktive Kategorien, Kalibrierrunden (1–2 bevorzugt soft),
+// f44 & Co. erst ab Runde 3, keine Wiederholungen (Pool wird notfalls neu gemischt).
+function baueFragenPlan(raum) {
+  const N = raum.rundenAnzahl;
+  const aktiv = raum.kategorien.length ? raum.kategorien : ["soft", "fun", "frech"];
+
+  // Zielanzahl je Kategorie proportional zum Gewicht
+  const wsum = aktiv.reduce((s, k) => s + GEWICHT[k], 0);
+  const ziel = {};
+  let vergeben = 0;
+  for (const k of aktiv) {
+    ziel[k] = Math.floor((N * GEWICHT[k]) / wsum);
+    vergeben += ziel[k];
   }
-  if (!pool.length) pool = FRAGEN; // Notnagel: alles schon genutzt
-  return pick(pool);
+  const nachGewicht = [...aktiv].sort((a, b) => GEWICHT[b] - GEWICHT[a]);
+  for (let r = N - vergeben, i = 0; r > 0; r--, i++) {
+    ziel[nachGewicht[i % nachGewicht.length]]++;
+  }
+
+  // Kategorie-Reihenfolge: Kalibrierrunden zuerst soft (falls aktiv), Rest gemischt
+  const folge = [];
+  if (aktiv.includes("soft")) {
+    const softVorne = Math.min(Math.min(KALIBRIER_RUNDEN, N), ziel.soft);
+    for (let i = 0; i < softVorne; i++) folge.push("soft");
+    ziel.soft -= softVorne;
+  }
+  const rest = [];
+  for (const k of aktiv) for (let i = 0; i < ziel[k]; i++) rest.push(k);
+  const restGemischt = shuffle(rest);
+  folge.push(...restGemischt);
+  while (folge.length < N) folge.push(pick(aktiv));
+  folge.length = N;
+
+  // Fragen je Kategorie ziehen (ohne Wiederholung; Pool bei Bedarf neu mischen)
+  const poolByCat = {};
+  for (const k of aktiv) poolByCat[k] = shuffle(FRAGEN.filter((f) => f.kategorie === k));
+
+  const plan = [];
+  folge.forEach((k, idx) => {
+    const runde = idx + 1;
+    if (!poolByCat[k] || poolByCat[k].length === 0) {
+      poolByCat[k] = shuffle(FRAGEN.filter((f) => f.kategorie === k));
+    }
+    const pool = poolByCat[k];
+    let j = pool.findIndex((f) => !f.nurAbRunde3 || runde > KALIBRIER_RUNDEN);
+    if (j === -1) j = 0; // nur f44 o.ä. übrig — Notnagel
+    plan.push(pool.splice(j, 1)[0]);
+  });
+  return plan;
 }
 
 function rundeStarten(raum) {
   clearTimer(raum);
   raum.runde += 1;
   raum.phase = "answering";
-  raum.frage = frageWaehlen(raum);
+  raum.frage = raum.fragenPlan[raum.runde - 1] || pick(FRAGEN);
   raum.genutzteFragen.add(raum.frage.id);
   raum.antworten = new Map();
   raum.optionen = [];
@@ -365,6 +407,16 @@ async function behandle(state, msg) {
       // Rundenzahl vom Host übernehmen (1–20, Default 8)
       const n = parseInt(msg.rundenAnzahl, 10);
       raum.rundenAnzahl = Number.isFinite(n) ? Math.min(20, Math.max(1, n)) : 8;
+      // Kategorien vom Host übernehmen (Teilmenge von soft/fun/frech)
+      const erlaubt = ["soft", "fun", "frech"];
+      const gewaehlt = Array.isArray(msg.kategorien)
+        ? msg.kategorien.filter((k) => erlaubt.includes(k))
+        : erlaubt;
+      if (gewaehlt.length === 0)
+        return sende(ws, "error", { message: "Mindestens eine Kategorie wählen." });
+      raum.kategorien = gewaehlt;
+      raum.genutzteFragen = new Set();
+      raum.fragenPlan = baueFragenPlan(raum);
       rundeStarten(raum);
       break;
     }

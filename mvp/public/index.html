@@ -14,19 +14,19 @@
     <!-- HOME -->
     <section id="screen-home" class="screen active">
       <h1 class="logo">Doppelgänger</h1>
-      <p class="tag">Eine Antwort ist die KI. Wer entlarvt sie?</p>
+      <p class="tag" id="home-tag">Eine Antwort ist die KI. Wer entlarvt sie?</p>
 
       <div class="card">
         <label>Dein Name</label>
         <input id="name" maxlength="24" placeholder="z. B. Mario" autocomplete="off" />
       </div>
 
-      <div class="card">
+      <div class="card" id="card-create">
         <button id="btn-create" class="primary big">Neuen Raum erstellen</button>
       </div>
 
-      <div class="card">
-        <label>Raumcode</label>
+      <div class="card" id="card-join">
+        <label id="code-label">Raumcode</label>
         <input id="code" maxlength="4" placeholder="ABCD" autocomplete="off" class="codeinput" />
         <button id="btn-join" class="big">Beitreten</button>
       </div>
@@ -44,6 +44,12 @@
       <div id="host-settings" class="card" hidden>
         <label for="rounds">Anzahl Runden</label>
         <input id="rounds" type="number" min="1" max="20" value="8" inputmode="numeric" />
+        <label class="mt">Kategorien</label>
+        <div class="cats">
+          <label class="cat"><input type="checkbox" class="cat-cb" value="soft" checked> Soft</label>
+          <label class="cat"><input type="checkbox" class="cat-cb" value="fun" checked> Fun</label>
+          <label class="cat"><input type="checkbox" class="cat-cb" value="frech" checked> Frech</label>
+        </div>
       </div>
       <button id="btn-start" class="primary big" hidden>Spiel starten</button>
       <p id="lobby-note" class="muted small"></p>

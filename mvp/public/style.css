@@ -81,3 +81,8 @@ button:disabled { opacity: .5; cursor: default; }
 .delta-neg { color: var(--bad); font-weight: 800; }
 
 .winner { text-align: center; background: var(--card); border: 1px solid var(--accent2); border-radius: 14px; padding: 18px; margin-bottom: 16px; font-size: 22px; font-weight: 800; }
+
+.mt { margin-top: 14px; }
+.cats { display: flex; gap: 8px; }
+.cats .cat { display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center; background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 6px; margin: 0; color: var(--text); font-size: 14px; cursor: pointer; }
+.cats .cat input { width: auto; margin: 0; }

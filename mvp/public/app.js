@@ -94,10 +94,19 @@ $("#btn-join").onclick = () => {
   connect(() => send("join", { name, code }));
 };
 
-// Code aus URL (?code=ABCD) vorbefüllen
+// Code aus URL (?code=ABCD): direkt in den Beitritts-Modus, "Raum erstellen" ausblenden
 (function prefill() {
   const c = new URLSearchParams(location.search).get("code");
-  if (c) $("#code").value = c.toUpperCase().slice(0, 4);
+  if (!c) return;
+  const code = c.toUpperCase().slice(0, 4);
+  $("#code").value = code;
+  $("#card-create").hidden = true; // QR-Gäste erstellen keinen Raum
+  $("#code").hidden = true; // Code steht fest, kein manuelles Feld
+  $("#code-label").textContent = `Raum ${code}`;
+  $("#home-tag").textContent = "Du trittst einem Spiel bei";
+  $("#btn-join").classList.add("primary");
+  $("#btn-join").textContent = `Raum ${code} beitreten`;
+  setTimeout(() => $("#name").focus(), 50);
 })();
 
 // ---- LOBBY ----
@@ -136,7 +145,9 @@ function renderLobby(lobby) {
 }
 $("#btn-start").onclick = () => {
   const r = parseInt($("#rounds").value, 10);
-  send("start", { rundenAnzahl: Number.isFinite(r) ? r : 8 });
+  const kategorien = $$(".cat-cb").filter((c) => c.checked).map((c) => c.value);
+  if (kategorien.length === 0) return flashError("Mindestens eine Kategorie wählen.");
+  send("start", { rundenAnzahl: Number.isFinite(r) ? r : 8, kategorien });
 };
 
 // ---- ANSWER ----
