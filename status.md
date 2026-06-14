@@ -1,6 +1,6 @@
 # Doppelgänger — Status
 
-Stand: 13. Juni 2026 · Phase 0 abgeschlossen (GO) · **Phase 1 (MVP) LIVE auf dem VPS — https://play.aimadixde.de**
+Stand: 14. Juni 2026 · Phase 0 abgeschlossen (GO) · **Phase 1 (MVP) LIVE auf dem VPS — https://play.aimadixde.de** · 3D-Startbildschirm integriert & deployed
 
 ## Wo wir stehen
 Konzept & Roadmap stehen (`doppelgaenger-konzept.md`). **Phase 0 ist bestanden:** Die
@@ -63,7 +63,8 @@ Ziel: eine komplette Partie mit 3–8 Handys im selben Raum.
 - [x] **VPS-Deployment live**: GitHub-Push → Clone → `update.sh` → nginx → certbot → https://play.aimadixde.de
 - [x] Live-Test auf 3 echten Geräten (MacBook + 2 iPhones) erfolgreich
 - [ ] **Playtest** mit echten Gruppen (Freunde, die sich gegenseitig kennen)
-- [ ] Offen: Service-Worker/Icons (echte Offline-PWA), Reconnect, Share-Funktion
+- [x] Reconnect implementiert (auch mitten in Voting/Results; Server hält `letzteResults`/Deadlines, sendet `sendeVoting` beim Wiederverbinden); Overlay-Bug behoben
+- [ ] Offen: Service-Worker/Icons (echte Offline-PWA), Share-Funktion
 
 ### Verbesserungen nach Live-Gang (13.06.2026)
 - [x] Name beim Beitritt verpflichtend (Frontend + Server)
@@ -78,7 +79,9 @@ Ziel: eine komplette Partie mit 3–8 Handys im selben Raum.
 - [x] 3D-Startbildschirm (Three.js, `public/scene3d.js`): drehender Würfel mit Split-Kopf → bei „Raum erstellen" runder Holztisch mit Frage-Karten → Avatare beim Beitritt. Dekorativ und **non-blocking** (schlägt WebGL fehl, läuft das Spiel weiter)
 - [x] Bugfix: Reconnect-Overlay lag immer sichtbar über dem Bild — CSS `display:flex` überstimmte das `hidden`-Attribut → `.overlay[hidden]{display:none}`
 - [x] Robustheit: Reconnect gibt nach 6 Fehlversuchen auf und kehrt zum Start zurück (statt endlosem „Verbindung verloren")
-- [ ] Optik/Layout des 3D-Startbildschirms feinschleifen (Lobby noch etwas voll)
+- [x] Ladeverhalten: three.js per `<link rel="preload">` vorab geladen; statische Split-Kopf-Grafik (`#bg3d-ph`) als Platzhalter, blendet aus, sobald die 3D-Szene den ersten Frame rendert — gegen den „späten Würfel"
+- [x] Deployed auf https://play.aimadixde.de (Git-Push + `mvp/deploy/update.sh`)
+- [ ] **Offen — Optik/Layout des 3D-Startbildschirms feinschleifen:** Würfel optisch noch nicht „schön"; Lobby wirkt voll (QR + Spielerliste über dem Tisch); Platzhalter-Position/Größe ggf. an Würfel angleichen
 
 ### Infrastruktur-Entscheidungen
 - VPS bereits genutzt (Docker + nginx). Doppelgänger = eigener Container, Port **3003**
