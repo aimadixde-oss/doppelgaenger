@@ -11,7 +11,7 @@ window.DG3D = (function () {
   var order = [];       // Sitz-Reihenfolge (Spieler-IDs)
   var seats = 8, RADIUS = 4.0, R = 3.0;
   var palette = [0x14140f, 0x00c2a8, 0xd85a30, 0x378add, 0x639922, 0xd4537e, 0xba7517, 0x534ab7];
-  var mode = 'start', trans = 0, orbit = 0, clock = 0, running = false;
+  var mode = 'start', trans = 0, orbit = 0, clock = 0, running = false, firstFrame = false;
   var startCam;
 
   function rrect(x, a, b, w, h, r) {
@@ -208,6 +208,11 @@ window.DG3D = (function () {
       if (p.g.userData.t < 1) { p.g.userData.t = Math.min(1, p.g.userData.t + 0.07); var e = 1 - Math.pow(1 - p.g.userData.t, 3); p.g.scale.setScalar(e); }
     }
     renderer.render(scene, camera);
+    if (!firstFrame) {
+      firstFrame = true;
+      var ph = document.getElementById('bg3d-ph');
+      if (ph) { ph.style.opacity = '0'; setTimeout(function () { ph.style.display = 'none'; }, 600); }
+    }
   }
 
   // ---------- API ----------

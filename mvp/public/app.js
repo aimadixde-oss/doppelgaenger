@@ -31,6 +31,11 @@ function showScreen(name) {
     else if (name === "lobby") DG3D.setMode("room");
     else DG3D.setMode("hidden");
   }
+  // Platzhalter spätestens beim Verlassen der Home-Ansicht ausblenden
+  if (name !== "home") {
+    const ph = document.getElementById("bg3d-ph");
+    if (ph) ph.style.display = "none";
+  }
 }
 
 // ---- Timer-Countdown ----

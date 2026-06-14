@@ -6,10 +6,36 @@
   <meta name="theme-color" content="#1a1a17" />
   <link rel="manifest" href="/manifest.webmanifest" />
   <title>Doppelgänger</title>
+  <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous" />
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <canvas id="bg3d"></canvas>
+  <div id="bg3d-ph" aria-hidden="true">
+    <svg viewBox="0 0 160 160" width="200" height="200">
+      <defs>
+        <clipPath id="phHead"><path d="M80 30 C112 30 124 62 119 92 C114 116 98 132 80 133 C62 132 46 116 41 92 C36 62 48 30 80 30 Z"/></clipPath>
+        <clipPath id="phRight"><rect x="80" y="0" width="80" height="160"/></clipPath>
+      </defs>
+      <path d="M80 30 C112 30 124 62 119 92 C114 116 98 132 80 133 C62 132 46 116 41 92 C36 62 48 30 80 30 Z" fill="#eceae3"/>
+      <g clip-path="url(#phHead)">
+        <g clip-path="url(#phRight)">
+          <rect x="80" y="20" width="60" height="120" fill="#dfe6e6"/>
+          <path d="M88 52 L104 52 L113 66" stroke="#16e0c4" stroke-width="2.5" fill="none"/>
+          <path d="M94 100 L114 100" stroke="#16e0c4" stroke-width="2.5"/>
+          <circle cx="97" cy="80" r="9" fill="#15171b"/><circle cx="97" cy="80" r="6" fill="#16e0c4"/><circle cx="97" cy="80" r="2.5" fill="#e9fffb"/>
+          <circle cx="115" cy="84" r="9" fill="none" stroke="#16e0c4" stroke-width="3"/>
+        </g>
+        <path d="M52 80 Q63 72 74 80 Q63 87 52 80 Z" fill="none" stroke="#14140f" stroke-width="2.5"/>
+        <circle cx="63" cy="80" r="3" fill="#14140f"/>
+        <path d="M52 68 Q63 64 74 68" stroke="#14140f" stroke-width="2.5" fill="none"/>
+      </g>
+      <line x1="80" y1="32" x2="80" y2="131" stroke="#14140f" stroke-width="2" stroke-dasharray="2 3"/>
+      <path d="M80 84 L78 104 Q80 107 83 105" stroke="#14140f" stroke-width="2" fill="none"/>
+      <line x1="70" y1="113" x2="90" y2="113" stroke="#14140f" stroke-width="3" stroke-linecap="round"/>
+      <path d="M80 30 C112 30 124 62 119 92 C114 116 98 132 80 133 C62 132 46 116 41 92 C36 62 48 30 80 30 Z" fill="none" stroke="#14140f" stroke-width="3"/>
+    </svg>
+  </div>
   <main id="app">
 
     <!-- HOME -->
