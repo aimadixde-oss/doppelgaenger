@@ -63,7 +63,22 @@ Ziel: eine komplette Partie mit 3–8 Handys im selben Raum.
 - [x] **VPS-Deployment live**: GitHub-Push → Clone → `update.sh` → nginx → certbot → https://play.aimadixde.de
 - [x] Live-Test auf 3 echten Geräten (MacBook + 2 iPhones) erfolgreich
 - [ ] **Playtest** mit echten Gruppen (Freunde, die sich gegenseitig kennen)
-- [ ] Offen: Service-Worker/Icons (echte Offline-PWA), Reconnect, Sieger-Screen, Share
+- [ ] Offen: Service-Worker/Icons (echte Offline-PWA), Reconnect, Share-Funktion
+
+### Verbesserungen nach Live-Gang (13.06.2026)
+- [x] Name beim Beitritt verpflichtend (Frontend + Server)
+- [x] Host legt Rundenzahl fest (Default 8, 1–20)
+- [x] Partie-Ende mit Endstand + Sieger-Banner; Host startet „Neues Spiel" (Reset)
+- [x] QR-Gäste landen direkt im Beitritts-Modus (kein „Raum erstellen")
+- [x] Kategorieauswahl (Soft/Fun/Frech) + Quote 3:5:3, auf Rundenzahl skaliert
+
+### Design & 3D-Startbildschirm (14.06.2026)
+- [x] Design-Richtung **C „Uncanny/Glitch"** festgelegt (Off-White `#f4f3ee` / Ink `#14140f` / Teal `#00c2a8`)
+- [x] KI-Symbol = **Doppelgänger-Split** (halb Mensch, halb Maschine) — gewählt aus 5 Entwürfen
+- [x] 3D-Startbildschirm (Three.js, `public/scene3d.js`): drehender Würfel mit Split-Kopf → bei „Raum erstellen" runder Holztisch mit Frage-Karten → Avatare beim Beitritt. Dekorativ und **non-blocking** (schlägt WebGL fehl, läuft das Spiel weiter)
+- [x] Bugfix: Reconnect-Overlay lag immer sichtbar über dem Bild — CSS `display:flex` überstimmte das `hidden`-Attribut → `.overlay[hidden]{display:none}`
+- [x] Robustheit: Reconnect gibt nach 6 Fehlversuchen auf und kehrt zum Start zurück (statt endlosem „Verbindung verloren")
+- [ ] Optik/Layout des 3D-Startbildschirms feinschleifen (Lobby noch etwas voll)
 
 ### Infrastruktur-Entscheidungen
 - VPS bereits genutzt (Docker + nginx). Doppelgänger = eigener Container, Port **3003**

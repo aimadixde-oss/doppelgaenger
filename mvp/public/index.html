@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
+  <canvas id="bg3d"></canvas>
   <main id="app">
 
     <!-- HOME -->
@@ -92,9 +93,18 @@
       <p id="res-wait" class="muted small" hidden>Warten auf den Host…</p>
     </section>
 
+    <div id="reconnect" class="overlay" hidden>
+      <div class="overlay-box">
+        Verbindung verloren…<br>
+        <span class="muted small">Versuche neu zu verbinden</span>
+      </div>
+    </div>
+
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="/scene3d.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>

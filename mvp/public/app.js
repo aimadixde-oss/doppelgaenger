@@ -4,11 +4,33 @@
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => [...document.querySelectorAll(sel)];
 
-const G = { you: null, isHost: false, code: null, ws: null, timer: null };
+const G = { you: null, isHost: false, code: null, ws: null, timer: null, token: null, reconnectTries: 0 };
+
+// ---- Sitzung (für Reconnect) ----
+function saveSession() {
+  try { localStorage.setItem("dg-session", JSON.stringify({ code: G.code, token: G.token })); } catch (e) {}
+}
+function clearSession() {
+  try { localStorage.removeItem("dg-session"); } catch (e) {}
+  G.token = null;
+}
+function loadSession() {
+  try { return JSON.parse(localStorage.getItem("dg-session") || "null"); } catch (e) { return null; }
+}
+function showReconnect(show) {
+  const el = $("#reconnect");
+  if (el) el.hidden = !show;
+}
 
 function showScreen(name) {
   $$(".screen").forEach((s) => s.classList.remove("active"));
   $("#screen-" + name).classList.add("active");
+  // 3D-Hintergrund: Würfel auf Home, Tisch in der Lobby, sonst aus
+  if (window.DG3D) {
+    if (name === "home") DG3D.setMode("start");
+    else if (name === "lobby") DG3D.setMode("room");
+    else DG3D.setMode("hidden");
+  }
 }
 
 // ---- Timer-Countdown ----
@@ -30,9 +52,30 @@ function stopCountdown() {
 function connect(onOpen) {
   const proto = location.protocol === "https:" ? "wss" : "ws";
   G.ws = new WebSocket(`${proto}://${location.host}/ws`);
-  G.ws.onopen = () => onOpen && onOpen();
+  G.ws.onopen = () => { G.reconnectTries = 0; onOpen && onOpen(); };
   G.ws.onmessage = (e) => handle(JSON.parse(e.data));
-  G.ws.onclose = () => { /* einfache Variante: keine Auto-Reconnect-Logik im MVP */ };
+  G.ws.onclose = () => {
+    // Nur reconnecten, wenn wir mitten in einem Spiel waren
+    if (G.token) scheduleReconnect();
+  };
+}
+
+function scheduleReconnect() {
+  // Nach mehreren Fehlversuchen aufgeben statt endlos „Verbindung verloren" zeigen
+  if (G.reconnectTries >= 6) {
+    clearSession();
+    showReconnect(false);
+    showScreen("home");
+    flashError("Konnte nicht neu verbinden. Bitte erneut beitreten.");
+    return;
+  }
+  showReconnect(true);
+  const delay = Math.min(5000, 800 * Math.pow(1.5, G.reconnectTries));
+  G.reconnectTries++;
+  setTimeout(() => {
+    if (!G.token) return; // Sitzung wurde inzwischen beendet
+    connect(() => send("rejoin", { code: G.code, token: G.token }));
+  }, delay);
 }
 function send(type, data = {}) {
   if (G.ws && G.ws.readyState === WebSocket.OPEN) G.ws.send(JSON.stringify({ type, ...data }));
@@ -43,8 +86,15 @@ function handle(m) {
   switch (m.type) {
     case "created":
     case "joined":
-      G.you = m.you; G.isHost = !!m.isHost; G.code = m.code;
+      G.you = m.you; G.isHost = !!m.isHost; G.code = m.code; G.token = m.token;
+      saveSession();
       enterLobby();
+      break;
+    case "resynced":
+      G.you = m.you; G.isHost = !!m.isHost; G.code = m.code;
+      saveSession();
+      showReconnect(false);
+      // Der direkt folgende Zustand (lobby/round/voting/results) rendert den Screen
       break;
     case "lobby":
       renderLobby(m.lobby);
@@ -65,7 +115,16 @@ function handle(m) {
       renderResults(m);
       break;
     case "error":
-      flashError(m.message);
+      if (m.fatal) {
+        clearSession();
+        showReconnect(false);
+        showScreen("home");
+        const c = new URLSearchParams(location.search).get("code");
+        if (c) setupJoinUI(c.toUpperCase().slice(0, 4));
+        flashError(m.message);
+      } else {
+        flashError(m.message);
+      }
       break;
   }
 }
@@ -94,11 +153,8 @@ $("#btn-join").onclick = () => {
   connect(() => send("join", { name, code }));
 };
 
-// Code aus URL (?code=ABCD): direkt in den Beitritts-Modus, "Raum erstellen" ausblenden
-(function prefill() {
-  const c = new URLSearchParams(location.search).get("code");
-  if (!c) return;
-  const code = c.toUpperCase().slice(0, 4);
+// QR-Beitritts-Modus aufbauen (Code aus URL)
+function setupJoinUI(code) {
   $("#code").value = code;
   $("#card-create").hidden = true; // QR-Gäste erstellen keinen Raum
   $("#code").hidden = true; // Code steht fest, kein manuelles Feld
@@ -107,6 +163,21 @@ $("#btn-join").onclick = () => {
   $("#btn-join").classList.add("primary");
   $("#btn-join").textContent = `Raum ${code} beitreten`;
   setTimeout(() => $("#name").focus(), 50);
+}
+
+// Start: bei vorhandener Sitzung automatisch reconnecten, sonst ggf. Beitritts-UI
+(function init() {
+  const urlCode = new URLSearchParams(location.search).get("code");
+  const code = urlCode ? urlCode.toUpperCase().slice(0, 4) : null;
+  const s = loadSession();
+  if (s && s.token && s.code && (!code || code === s.code)) {
+    G.code = s.code;
+    G.token = s.token;
+    showReconnect(true);
+    connect(() => send("rejoin", { code: s.code, token: s.token }));
+    return;
+  }
+  if (code) setupJoinUI(code);
 })();
 
 // ---- LOBBY ----
@@ -132,6 +203,7 @@ function renderLobby(lobby) {
     li.innerHTML = `<span>${escapeHtml(p.name)} ${p.isHost ? '<span class="host">· Host</span>' : ""}</span>`;
     list.appendChild(li);
   });
+  if (window.DG3D) DG3D.setPlayers(lobby.spieler);
   const me = lobby.spieler.find((p) => p.id === G.you?.id);
   G.isHost = !!me?.isHost;
   const startBtn = $("#btn-start");
@@ -160,8 +232,15 @@ function renderRound(m) {
   ta.value = ""; ta.disabled = false;
   $("#btn-answer").disabled = false;
   $("#ans-wait").hidden = true;
-  ta.focus();
   startCountdown($("#ans-timer"), m.deadline);
+  if (m.schonGeantwortet) {
+    // Nach Reconnect: schon geantwortet → Eingabe sperren
+    ta.disabled = true;
+    $("#btn-answer").disabled = true;
+    $("#ans-wait").hidden = false;
+  } else {
+    ta.focus();
+  }
 }
 $("#btn-answer").onclick = () => {
   const txt = $("#answer").value.trim();
@@ -200,6 +279,11 @@ function renderVoting(m) {
     box.appendChild(b);
   });
   startCountdown($("#vote-timer"), m.deadline);
+  if (m.schonGevotet) {
+    // Nach Reconnect: schon abgestimmt → sperren
+    $$("#options button").forEach((x) => (x.disabled = true));
+    $("#vote-wait").hidden = false;
+  }
 }
 
 // ---- RESULTS ----
@@ -264,6 +348,13 @@ function renderResults(m) {
     : "Warten auf den Host…";
 }
 $("#btn-next").onclick = () => send(G.finale ? "reset" : "next");
+
+// ---- 3D-Hintergrund initialisieren (dekorativ, non-blocking) ----
+if (window.DG3D) {
+  DG3D.init(document.getElementById("bg3d"));
+  // Home ist beim Start aktiv → Würfel zeigen (wird bei Reconnect ggf. korrigiert)
+  if (!$("#screen-lobby").classList.contains("active")) DG3D.setMode("start");
+}
 
 // ---- Util ----
 function escapeHtml(s) {

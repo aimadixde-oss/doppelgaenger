@@ -170,6 +170,7 @@ function rundeStarten(raum) {
 
   const kalibrierung = raum.runde <= KALIBRIER_RUNDEN;
   const deadline = Date.now() + ANTWORT_SEK * 1000;
+  raum.answerDeadline = deadline;
   broadcast(raum, "round", {
     runde: raum.runde,
     gesamt: raum.rundenAnzahl,
@@ -246,32 +247,38 @@ async function zuVotingWechseln(raum) {
   if (raum.optionen.length < 2) {
     // Nicht genug Antworten → Runde überspringen, zurück zur Lobby
     raum.phase = "results";
-    broadcast(raum, "results", {
+    raum.letzteResults = {
       uebersprungen: true,
       hinweis: "Zu wenige Antworten — Runde übersprungen.",
       lobby: lobbyStand(raum),
-    });
+    };
+    broadcast(raum, "results", raum.letzteResults);
     return;
   }
 
   raum.phase = "voting";
   raum.votes = new Map();
   const deadline = Date.now() + VOTE_SEK * 1000;
-  const optionenPublic = raum.optionen.map((o) => ({ optId: o.optId, text: o.text }));
-  // Personalisiert: jedem Handy mitteilen, welche Option die eigene ist (gesperrt)
-  for (const p of raum.spieler.values()) {
-    const eigene = raum.optionen.find((o) => o.authorId === p.id);
-    sende(p.ws, "voting", {
-      runde: raum.runde,
-      frage: raum.frage.text,
-      optionen: optionenPublic,
-      deinOptId: eigene ? eigene.optId : null,
-      hatKI: !!kiOption,
-      deadline,
-      sekunden: VOTE_SEK,
-    });
-  }
+  raum.voteDeadline = deadline;
+  raum.hatKI = !!kiOption;
+  // Personalisiert: jedem Handy seine Sicht schicken (eigene Option gesperrt)
+  for (const p of raum.spieler.values()) sendeVoting(raum, p);
   raum.timer = setTimeout(() => aufloesen(raum), VOTE_SEK * 1000);
+}
+
+// Voting-Nachricht für einen Spieler (auch für Reconnect genutzt)
+function sendeVoting(raum, p) {
+  const eigene = raum.optionen.find((o) => o.authorId === p.id);
+  sende(p.ws, "voting", {
+    runde: raum.runde,
+    frage: raum.frage.text,
+    optionen: raum.optionen.map((o) => ({ optId: o.optId, text: o.text })),
+    deinOptId: eigene ? eigene.optId : null,
+    hatKI: !!raum.hatKI,
+    deadline: raum.voteDeadline,
+    sekunden: VOTE_SEK,
+    schonGevotet: raum.votes.has(p.id),
+  });
 }
 
 function alleHabenGevotet(raum) {
@@ -334,7 +341,7 @@ function aufloesen(raum) {
 
   const finale = raum.runde >= raum.rundenAnzahl;
   if (finale) raum.phase = "finished";
-  broadcast(raum, "results", {
+  raum.letzteResults = {
     uebersprungen: false,
     runde: raum.runde,
     gesamt: raum.rundenAnzahl,
@@ -348,7 +355,8 @@ function aufloesen(raum) {
       delta: d,
     })),
     lobby: lobbyStand(raum),
-  });
+  };
+  broadcast(raum, "results", raum.letzteResults);
 }
 
 // ---------- Nachrichten ----------
@@ -368,12 +376,12 @@ async function behandle(state, msg) {
       raeume.set(code, raum);
       const name = (msg.name || "").toString().trim().slice(0, 24);
       if (!name) return sende(ws, "error", { message: "Bitte einen Namen angeben." });
-      const p = { id: id(), name, ws, score: 0, connected: true };
+      const p = { id: id(), name, ws, score: 0, connected: true, token: id() + id() };
       raum.hostId = p.id;
       raum.spieler.set(p.id, p);
       state.raum = raum;
       state.player = p;
-      sende(ws, "created", { code, you: { id: p.id, name: p.name }, isHost: true });
+      sende(ws, "created", { code, you: { id: p.id, name: p.name }, isHost: true, token: p.token });
       broadcastLobby(raum);
       break;
     }
@@ -384,7 +392,7 @@ async function behandle(state, msg) {
         return sende(ws, "error", { message: "Spiel läuft bereits." });
       const name = (msg.name || "").toString().trim().slice(0, 24);
       if (!name) return sende(ws, "error", { message: "Bitte einen Namen angeben." });
-      const p = { id: id(), name, ws, score: 0, connected: true };
+      const p = { id: id(), name, ws, score: 0, connected: true, token: id() + id() };
       raum.spieler.set(p.id, p);
       state.raum = raum;
       state.player = p;
@@ -392,6 +400,7 @@ async function behandle(state, msg) {
         code: raum.code,
         you: { id: p.id, name: p.name },
         isHost: false,
+        token: p.token,
       });
       broadcastLobby(raum);
       break;
@@ -473,31 +482,100 @@ async function behandle(state, msg) {
       broadcastLobby(raum);
       break;
     }
+    case "rejoin": {
+      const raum = raeume.get((msg.code || "").toUpperCase());
+      if (!raum) return sende(ws, "error", { message: "Sitzung nicht gefunden.", fatal: true });
+      const p = [...raum.spieler.values()].find((x) => x.token && x.token === msg.token);
+      if (!p) return sende(ws, "error", { message: "Sitzung abgelaufen.", fatal: true });
+      p.ws = ws;
+      p.connected = true;
+      state.raum = raum;
+      state.player = p;
+      if (raum.cleanupTimer) {
+        clearTimeout(raum.cleanupTimer);
+        raum.cleanupTimer = null;
+      }
+      sende(ws, "resynced", {
+        you: { id: p.id, name: p.name },
+        isHost: raum.hostId === p.id,
+        code: raum.code,
+      });
+      schickeZustand(raum, p);
+      broadcastLobby(raum);
+      break;
+    }
     default:
       sende(ws, "error", { message: "Unbekannter Nachrichtentyp." });
   }
+}
+
+// Aktuellen Spielzustand an einen (wieder verbundenen) Spieler schicken
+function schickeZustand(raum, p) {
+  switch (raum.phase) {
+    case "lobby":
+      sende(p.ws, "lobby", { lobby: lobbyStand(raum) });
+      break;
+    case "answering":
+    case "building":
+      sende(p.ws, "round", {
+        runde: raum.runde,
+        gesamt: raum.rundenAnzahl,
+        frage: raum.frage.text,
+        kategorie: raum.frage.kategorie,
+        kalibrierung: raum.runde <= KALIBRIER_RUNDEN,
+        deadline: raum.answerDeadline,
+        sekunden: ANTWORT_SEK,
+        schonGeantwortet: raum.phase === "building" || raum.antworten.has(p.id),
+      });
+      break;
+    case "voting":
+      sendeVoting(raum, p);
+      break;
+    case "results":
+    case "finished":
+      if (raum.letzteResults) sende(p.ws, "results", raum.letzteResults);
+      else sende(p.ws, "lobby", { lobby: lobbyStand(raum) });
+      break;
+  }
+}
+
+const TRENN_GRACE_MS = 60000; // 60s Karenz für Reconnect
+
+function planeAufraeumen(raum) {
+  if (raum.cleanupTimer) clearTimeout(raum.cleanupTimer);
+  raum.cleanupTimer = setTimeout(() => {
+    raum.cleanupTimer = null;
+    // Host neu vergeben, falls weg/dauerhaft getrennt
+    const host = raum.spieler.get(raum.hostId);
+    if (!host || !host.connected) {
+      const naechster = verbundene(raum)[0];
+      if (naechster) raum.hostId = naechster.id;
+    }
+    // Endgültig getrennte Spieler entfernen
+    for (const [pid, p] of [...raum.spieler]) {
+      if (!p.connected) raum.spieler.delete(pid);
+    }
+    if (verbundene(raum).length === 0) {
+      clearTimer(raum);
+      raeume.delete(raum.code);
+    } else {
+      broadcastLobby(raum);
+    }
+  }, TRENN_GRACE_MS);
 }
 
 function trennen(state) {
   const { raum, player } = state;
   if (!raum || !player) return;
   const p = raum.spieler.get(player.id);
-  if (p) p.connected = false;
-  // Host-Übergabe, falls Host geht
-  if (raum.hostId === player.id) {
-    const naechster = verbundene(raum)[0];
-    raum.hostId = naechster ? naechster.id : null;
-  }
-  // Leeren Raum aufräumen
-  if (verbundene(raum).length === 0) {
-    clearTimer(raum);
-    raeume.delete(raum.code);
-    return;
-  }
+  if (!p) return;
+  p.connected = false;
   broadcastLobby(raum);
-  // Phasenfortschritt prüfen (evtl. wartet die Runde nur noch auf den Getrennten)
+  // Runde nicht blockieren, wenn nur noch der Getrennte fehlte
   if (raum.phase === "answering" && alleHabenGeantwortet(raum)) zuVotingWechseln(raum);
-  if (raum.phase === "voting" && alleHabenGevotet(raum)) aufloesen(raum);
+  else if (raum.phase === "voting" && alleHabenGevotet(raum)) aufloesen(raum);
+  // Karenz: erst nach Ablauf endgültig aufräumen (ermöglicht Reconnect)
+  planeAufraeumen(raum);
 }
 
 // ---------- HTTP + WS ----------

@@ -17,7 +17,15 @@ html, body {
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-#app { max-width: 520px; margin: 0 auto; padding: 20px 16px 48px; }
+#bg3d { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: none; pointer-events: none; }
+#app { position: relative; z-index: 1; max-width: 520px; margin: 0 auto; padding: 20px 16px 48px; }
+
+/* Wenn die 3D-Szene läuft, Inhalte in Home/Lobby tiefer setzen, damit Würfel/Tisch sichtbar bleiben */
+#screen-home.active .logo { margin-top: 8vh; }
+#screen-home.active #card-create,
+#screen-home.active #card-join { background: rgba(38, 38, 31, 0.82); backdrop-filter: blur(2px); }
+#screen-lobby.active .card,
+#screen-lobby.active .players li { background: rgba(38, 38, 31, 0.82); backdrop-filter: blur(2px); }
 .screen { display: none; }
 .screen.active { display: block; animation: fade .2s ease; }
 @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
@@ -86,3 +94,7 @@ button:disabled { opacity: .5; cursor: default; }
 .cats { display: flex; gap: 8px; }
 .cats .cat { display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center; background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 6px; margin: 0; color: var(--text); font-size: 14px; cursor: pointer; }
 .cats .cat input { width: auto; margin: 0; }
+
+.overlay { position: fixed; inset: 0; background: rgba(20,20,16,.82); display: flex; align-items: center; justify-content: center; z-index: 50; }
+.overlay[hidden] { display: none; }
+.overlay-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px 26px; text-align: center; font-weight: 700; font-size: 18px; }
